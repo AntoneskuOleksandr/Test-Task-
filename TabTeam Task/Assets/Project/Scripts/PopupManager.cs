@@ -1,30 +1,35 @@
+using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PopupManager : MonoBehaviour
 {
-    public GameObject popupPanel; // Панель всплывающего окна
-    public TMP_InputField inputField; // Поле ввода
-    public ButtonsManager buttonActions; // Скрипт ButtonActions
+    public GameObject popupPanel;
+    public TMP_InputField inputField;
+    public ButtonsManager buttonActions;
 
-    // Функция для отображения всплывающего окна
-    public void ShowPopup()
+    private Action<int> confirmAction;
+
+    public void ShowPopup(Action<int> confirmAction)
     {
+        this.confirmAction = confirmAction;
         popupPanel.SetActive(true);
     }
 
-    // Функция для скрытия всплывающего окна
     public void HidePopup()
     {
         popupPanel.SetActive(false);
     }
 
-    // Функция для подтверждения ввода
     public void ConfirmInput()
     {
-        int id = int.Parse(inputField.text);
-        buttonActions.OnDeleteButtonPress(id);
+        int id = 0;
+        if (!string.IsNullOrEmpty(inputField.text))
+        {
+            id = int.Parse(inputField.text);
+        }
+        confirmAction(id);
         HidePopup();
     }
+
 }
