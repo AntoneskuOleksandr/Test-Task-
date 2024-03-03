@@ -29,6 +29,7 @@ public class PopupManager : MonoBehaviour
             id = int.Parse(inputField.text);
         }
         confirmAction(id);
+        inputField.text = "";
         HidePopup();
     }
 

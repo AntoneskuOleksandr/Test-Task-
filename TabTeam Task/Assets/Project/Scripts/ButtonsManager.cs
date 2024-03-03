@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using System.Linq;
 
 public class ButtonsManager : MonoBehaviour
 {
@@ -12,7 +13,7 @@ public class ButtonsManager : MonoBehaviour
     [SerializeField] private GameObject buttonPrefab;
     [SerializeField] private PopupManager popupManager;
 
-    private string apiUrl = "https://65e217a2a8583365b317e3cd.mockapi.io/buttons";
+    [SerializeField] private string apiUrl = "https://65e217a2a8583365b317e3cd.mockapi.io/buttons";
     private Dictionary<int, GameObject> buttons = new Dictionary<int, GameObject>();
 
     public void OnCreateButtonPress()
@@ -25,7 +26,17 @@ public class ButtonsManager : MonoBehaviour
         popupManager.ShowPopup(DeleteButton);
     }
 
-    public void DeleteButton(int id)
+    public void OnUpdateButtonPress()
+    {
+        popupManager.ShowPopup(UpdateButton);
+    }
+
+    public void OnRefreshButtonPress()
+    {
+        popupManager.ShowPopup(RefreshButtons);
+    }
+
+    private void DeleteButton(int id)
     {
         if (buttons.ContainsKey(id))
         {
@@ -33,24 +44,104 @@ public class ButtonsManager : MonoBehaviour
         }
     }
 
-    public void OnUpdateButtonPress()
-    {
-        popupManager.ShowPopup(UpdateButton);
-    }
-
-    public void UpdateButton(int id)
+    private void UpdateButton(int id)
     {
         if (buttons.ContainsKey(id))
         {
             StartCoroutine(GetRequest(apiUrl + "/" + id, buttonData =>
             {
                 buttonData.text = "Updated Button";
+                buttonData.color = new float[] { 255f, 1f, 1f };
                 StartCoroutine(PutRequest(apiUrl + "/" + id, buttonData, id));
+            },
+            () =>
+            {
+                // If the button is not on the server, remove it from the application
+                Destroy(buttons[id]);
+                buttons.Remove(id);
             }));
         }
     }
 
-    private IEnumerator GetRequest(string url, Action<ButtonData> onSuccess)
+    private void RefreshButtons(int id)
+    {
+        if (id != 0)
+        {
+            StartCoroutine(GetRequest(apiUrl + "/" + id, buttonData =>
+            {
+                if (buttons.ContainsKey(id))
+                {
+                    buttons[id].GetComponentInChildren<TMP_Text>().text = buttonData.text;
+                    buttons[id].GetComponent<Image>().color = HSLToColor(buttonData.color);
+                }
+            },
+            () =>
+            {
+                // If the button is not on the server, remove it from the application
+                Destroy(buttons[id]);
+                buttons.Remove(id);
+            }));
+        }
+        else
+        {
+            StartCoroutine(GetRequest(apiUrl));
+        }
+    }
+
+    private IEnumerator GetRequest(string url)
+    {
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
+        {
+            yield return webRequest.SendWebRequest();
+
+            if (webRequest.result == UnityWebRequest.Result.Success)
+            {
+                string response = webRequest.downloadHandler.text;
+
+                // Wrap the JSON response in an object containing the list
+                ButtonDataList buttonDataList = JsonUtility.FromJson<ButtonDataList>("{\"buttonData\":" + response + "}");
+
+                // Create a list of button IDs on the server
+                List<int> serverButtonIds = buttonDataList.buttonData.Select(buttonData => int.Parse(buttonData.id)).ToList();
+
+                // Check every button in the application
+                foreach (var button in new Dictionary<int, GameObject>(buttons))
+                {
+                    // If the button is not on the server, remove it from the application
+                    if (!serverButtonIds.Contains(button.Key))
+                    {
+                        Destroy(button.Value);
+                        buttons.Remove(button.Key);
+                    }
+                }
+
+                // Update or add buttons to the application
+                foreach (var buttonData in buttonDataList.buttonData)
+                {
+                    if (buttons.ContainsKey(int.Parse(buttonData.id)))
+                    {
+                        // Update the existing button
+                        buttons[int.Parse(buttonData.id)].GetComponentInChildren<TMP_Text>().text = buttonData.text;
+                        buttons[int.Parse(buttonData.id)].GetComponent<Image>().color = HSLToColor(buttonData.color);
+                    }
+                    else
+                    {
+                        // Create a new button
+                        GameObject newButton = Instantiate(buttonPrefab, buttonParent.transform);
+                        newButton.GetComponentInChildren<TMP_Text>().text = buttonData.text;
+                        newButton.GetComponent<Image>().color = HSLToColor(buttonData.color);
+                        buttons.Add(int.Parse(buttonData.id), newButton);
+                    }
+                }
+            }
+            else
+            {
+                Debug.Log(webRequest.error);
+            }
+        }
+    }
+
+    private IEnumerator GetRequest(string url, Action<ButtonData> onSuccess, Action onNotFound = null)
     {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
         {
@@ -64,36 +155,22 @@ public class ButtonsManager : MonoBehaviour
             }
             else
             {
-                Debug.Log(webRequest.error);
-            }
-        }
-    }
-
-    private IEnumerator PutRequest(string url, ButtonData buttonData, int id)
-    {
-        string json = JsonUtility.ToJson(buttonData);
-
-        using (UnityWebRequest webRequest = UnityWebRequest.Put(url, json))
-        {
-            webRequest.SetRequestHeader("Content-Type", "application/json");
-
-            yield return webRequest.SendWebRequest();
-
-            if (webRequest.result == UnityWebRequest.Result.Success)
-            {
-                Debug.Log("Button updated successfully");
-                buttons[id].GetComponentInChildren<TMP_Text>().text = buttonData.text;
-            }
-            else
-            {
-                Debug.Log(webRequest.error);
+                if (webRequest.responseCode == 404)
+                {
+                    // If the button is not found on the server, call the onNotFound handler
+                    onNotFound?.Invoke();
+                }
+                else
+                {
+                    Debug.Log(webRequest.error);
+                }
             }
         }
     }
 
     private IEnumerator PostRequest(string url)
     {
-        using (UnityWebRequest webRequest = UnityWebRequest.Post(url, ""))
+        using (UnityWebRequest webRequest = UnityWebRequest.PostWwwForm(url, ""))
         {
             yield return webRequest.SendWebRequest();
 
@@ -103,9 +180,8 @@ public class ButtonsManager : MonoBehaviour
                 ButtonData buttonData = JsonUtility.FromJson<ButtonData>(response);
 
                 GameObject newButton = Instantiate(buttonPrefab, buttonParent.transform);
-                newButton.GetComponentInChildren<TMP_Text>().text = buttonData.text;
 
-                newButton.GetComponent<Image>().color = HSLToColor(buttonData.color);
+                SetButtonValues(buttonData, newButton);
 
                 buttons.Add(int.Parse(buttonData.id), newButton);
             }
@@ -133,6 +209,34 @@ public class ButtonsManager : MonoBehaviour
                 Debug.Log(webRequest.error);
             }
         }
+    }
+
+    private IEnumerator PutRequest(string url, ButtonData buttonData, int id)
+    {
+        string json = JsonUtility.ToJson(buttonData);
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Put(url, json))
+        {
+            webRequest.SetRequestHeader("Content-Type", "application/json");
+
+            yield return webRequest.SendWebRequest();
+
+            if (webRequest.result == UnityWebRequest.Result.Success)
+            {
+                Debug.Log("Button updated successfully");
+                SetButtonValues(buttonData, buttons[id]);
+            }
+            else
+            {
+                Debug.Log(webRequest.error);
+            }
+        }
+    }
+
+    private void SetButtonValues(ButtonData buttonData, GameObject button)
+    {
+        button.GetComponentInChildren<TMP_Text>().text = buttonData.text;
+        button.GetComponent<Image>().color = HSLToColor(buttonData.color);
     }
 
     private Color HSLToColor(float[] hsl)
@@ -168,6 +272,13 @@ public class ButtonsManager : MonoBehaviour
         if (t < 2 / 3f) return p + (q - p) * (2 / 3f - t) * 6;
         return p;
     }
+
+}
+
+[Serializable]
+public class ButtonDataList
+{
+    public List<ButtonData> buttonData;
 }
 
 [Serializable]

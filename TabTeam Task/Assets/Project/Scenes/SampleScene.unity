@@ -487,7 +487,7 @@ RectTransform:
   - {fileID: 1544814227}
   - {fileID: 711054331}
   - {fileID: 1327249544}
-  - {fileID: 347240199}
+  - {fileID: 1240614930}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -506,9 +506,8 @@ GameObject:
   - component: {fileID: 347240199}
   - component: {fileID: 347240201}
   - component: {fileID: 347240200}
-  - component: {fileID: 347240202}
   m_Layer: 5
-  m_Name: PopUp
+  m_Name: Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -521,18 +520,18 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 347240198}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1732736073}
-  m_Father: {fileID: 340389897}
+  m_Father: {fileID: 1240614930}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 1080, y: 1920}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &347240200
 MonoBehaviour:
@@ -572,21 +571,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 347240198}
   m_CullTransparentMesh: 1
---- !u!114 &347240202
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 347240198}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c51deceb7d478f4c9c243d6190b6374, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  popupPanel: {fileID: 347240198}
-  inputField: {fileID: 1732736074}
-  buttonActions: {fileID: 1555835795}
 --- !u!1 &440015722
 GameObject:
   m_ObjectHideFlags: 0
@@ -1123,7 +1107,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1555835795}
         m_TargetAssemblyTypeName: ButtonsManager, Assembly-CSharp
-        m_MethodName: OnDeleteButtonPressWrapper
+        m_MethodName: OnDeleteButtonPress
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1263,6 +1247,58 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1240614929
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1240614930}
+  - component: {fileID: 1240614931}
+  m_Layer: 5
+  m_Name: PopUp
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1240614930
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1240614929}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 347240199}
+  m_Father: {fileID: 340389897}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1240614931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1240614929}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c51deceb7d478f4c9c243d6190b6374, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  popupPanel: {fileID: 347240198}
+  inputField: {fileID: 1732736074}
+  buttonActions: {fileID: 1555835795}
 --- !u!1 &1287510010
 GameObject:
   m_ObjectHideFlags: 0
@@ -1400,7 +1436,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1555835795}
         m_TargetAssemblyTypeName: ButtonsManager, Assembly-CSharp
-        m_MethodName: OnRefreshButtonPressWrapper
+        m_MethodName: OnRefreshButtonPress
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1533,7 +1569,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1555835795}
         m_TargetAssemblyTypeName: ButtonsManager, Assembly-CSharp
-        m_MethodName: OnUpdateButtonPressWrapper
+        m_MethodName: OnUpdateButtonPress
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1593,7 +1629,7 @@ GameObject:
   - component: {fileID: 1555835795}
   - component: {fileID: 1555835796}
   m_Layer: 5
-  m_Name: Buttons
+  m_Name: ServerButtons
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1613,10 +1649,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 340389897}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 200}
-  m_SizeDelta: {x: -100, y: -800}
+  m_SizeDelta: {x: 980, y: -800}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1555835795
 MonoBehaviour:
@@ -1633,7 +1669,8 @@ MonoBehaviour:
   buttonParent: {fileID: 1555835793}
   buttonPrefab: {fileID: 1391647409068692507, guid: 27785e4a607785a4d9c376db961890a7,
     type: 3}
-  popupManager: {fileID: 347240202}
+  popupManager: {fileID: 1240614931}
+  apiUrl: https://65e217a2a8583365b317e3cd.mockapi.io/buttons
 --- !u!114 &1555835796
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1657,7 +1694,7 @@ MonoBehaviour:
   m_CellSize: {x: 250, y: 250}
   m_Spacing: {x: 25, y: 75}
   m_Constraint: 0
-  m_ConstraintCount: 2
+  m_ConstraintCount: 3
 --- !u!1 &1732736072
 GameObject:
   m_ObjectHideFlags: 0
@@ -1759,7 +1796,7 @@ MonoBehaviour:
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 347240202}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PopupManager, Assembly-CSharp
         m_MethodName: ConfirmInput
         m_Mode: 1
@@ -1799,7 +1836,7 @@ MonoBehaviour:
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
-  m_RichText: 0
+  m_RichText: 1
   m_GlobalFontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_OnFocusSelectAll: 1
   m_ResetOnDeActivation: 1
