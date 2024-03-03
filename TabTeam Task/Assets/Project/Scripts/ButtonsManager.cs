@@ -52,12 +52,14 @@ public class ButtonsManager : MonoBehaviour
             {
                 buttonData.text = "Updated Button";
                 buttonData.color = new float[] { 255f, 1f, 1f };
+                buttonData.animationType = true;
+
                 StartCoroutine(PutRequest(apiUrl + "/" + id, buttonData, id));
             },
             () =>
             {
                 // If the button is not on the server, remove it from the application
-                Destroy(buttons[id]);
+                PlayAnimation(buttons[id], "ButtonDisappear");
                 buttons.Remove(id);
             }));
         }
@@ -78,7 +80,7 @@ public class ButtonsManager : MonoBehaviour
             () =>
             {
                 // If the button is not on the server, remove it from the application
-                Destroy(buttons[id]);
+                PlayAnimation(buttons[id], "ButtonDisappear");
                 buttons.Remove(id);
             }));
         }
@@ -110,7 +112,7 @@ public class ButtonsManager : MonoBehaviour
                     // If the button is not on the server, remove it from the application
                     if (!serverButtonIds.Contains(button.Key))
                     {
-                        Destroy(button.Value);
+                        PlayAnimation(button.Value, "ButtonDisappear");
                         buttons.Remove(button.Key);
                     }
                 }
@@ -130,6 +132,8 @@ public class ButtonsManager : MonoBehaviour
                         GameObject newButton = Instantiate(buttonPrefab, buttonParent.transform);
                         newButton.GetComponentInChildren<TMP_Text>().text = buttonData.text;
                         newButton.GetComponent<Image>().color = HSLToColor(buttonData.color);
+
+                        SetButtonValues(buttonData, newButton, "ButtonAppear");
                         buttons.Add(int.Parse(buttonData.id), newButton);
                     }
                 }
@@ -181,7 +185,7 @@ public class ButtonsManager : MonoBehaviour
 
                 GameObject newButton = Instantiate(buttonPrefab, buttonParent.transform);
 
-                SetButtonValues(buttonData, newButton);
+                SetButtonValues(buttonData, newButton, "ButtonAppear");
 
                 buttons.Add(int.Parse(buttonData.id), newButton);
             }
@@ -200,8 +204,7 @@ public class ButtonsManager : MonoBehaviour
 
             if (webRequest.result == UnityWebRequest.Result.Success)
             {
-                Debug.Log("Button deleted successfully");
-                Destroy(buttons[id]);
+                PlayAnimation(buttons[id], "ButtonDisappear");
                 buttons.Remove(id);
             }
             else
@@ -223,8 +226,7 @@ public class ButtonsManager : MonoBehaviour
 
             if (webRequest.result == UnityWebRequest.Result.Success)
             {
-                Debug.Log("Button updated successfully");
-                SetButtonValues(buttonData, buttons[id]);
+                SetButtonValues(buttonData, buttons[id], "ButtonPulse");
             }
             else
             {
@@ -233,10 +235,18 @@ public class ButtonsManager : MonoBehaviour
         }
     }
 
-    private void SetButtonValues(ButtonData buttonData, GameObject button)
+    private void SetButtonValues(ButtonData buttonData, GameObject button, string animation)
     {
         button.GetComponentInChildren<TMP_Text>().text = buttonData.text;
         button.GetComponent<Image>().color = HSLToColor(buttonData.color);
+
+        if (buttonData.animationType) //if animationType == true: Play "ButtonAppear" animation
+            PlayAnimation(button, animation);
+    }
+
+    private void PlayAnimation(GameObject button, string animation)
+    {
+        button.GetComponent<Animator>().SetTrigger(animation);
     }
 
     private Color HSLToColor(float[] hsl)
@@ -272,7 +282,6 @@ public class ButtonsManager : MonoBehaviour
         if (t < 2 / 3f) return p + (q - p) * (2 / 3f - t) * 6;
         return p;
     }
-
 }
 
 [Serializable]
@@ -286,6 +295,6 @@ public class ButtonData
 {
     public float[] color;
     public string text;
-    public string animationType;
+    public bool animationType;
     public string id;
 }
